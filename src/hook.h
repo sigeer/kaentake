@@ -55,6 +55,7 @@ void AttachMobHpTagMod();
 void AttachToolTipMod();
 void AttachIconIconMod();
 void AttachTempStatMod();
+void AttachImeSupport();
 
 inline void AttachClientHooks() {
     AttachClientBypass();
@@ -68,6 +69,7 @@ inline void AttachClientHooks() {
     AttachToolTipMod();
     AttachIconIconMod();
     AttachTempStatMod();
+    AttachImeSupport();
 }
 
 

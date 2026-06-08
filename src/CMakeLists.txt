@@ -15,6 +15,7 @@ add_library(injector SHARED
     stringpool.cpp
     debug.cpp
     hook.cpp
+    ime.cpp
 )
 
 target_precompile_headers(injector PRIVATE pch.h)

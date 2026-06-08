@@ -1,10 +1,12 @@
 #include "pch.h"
 #include "hook.h"
 #include "ztl/ztl.h"
+#include "translations.h"
 
 #define REPLACE_STRING(INDEX, NEW_STRING) \
     do { \
-        static char sEncoded[GetLength(NEW_STRING) + 2]; \
+        size_t nLen = strlen(NEW_STRING); \
+        char* sEncoded = new char[nLen + 2]; \
         EncodeString(INDEX, NEW_STRING, sEncoded); \
     } while (0)
 
@@ -50,4 +52,18 @@ void EncodeString(int nIdx, const char* sSource, char* sDestination) {
 
 void AttachStringPoolMod() {
     REPLACE_STRING(1163, "Kaentake");
+
+    // 应用所有中文翻译
+    const auto& translationMap = Translation::GetTranslationMap();
+    for (const auto& pair : translationMap) {
+        int index = pair.first;
+        const char* chinese = pair.second;
+
+        if (chinese != nullptr && strlen(chinese) > 0) {
+            REPLACE_STRING(index, chinese);
+            DEBUG_MESSAGE("Translated string index %d: %s", index, chinese);
+        }
+    }
+
+    DEBUG_MESSAGE("Total translations applied: %zu", translationMap.size());
 }
