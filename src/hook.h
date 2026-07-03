@@ -40,10 +40,10 @@
 #define TO_PVOID(VALUE) ((void*)(VALUE))
 
 
-// called in injector.cpp -> DllMain
+// 在 injector.cpp -> DllMain 中调用
 void AttachSystemHooks();
 
-// called in system.cpp -> SetUnhandledExceptionFilter_hook
+// 在 system.cpp -> SetUnhandledExceptionFilter_hook 中调用
 void AttachClientBypass();
 void AttachClientInlink();
 void AttachStringPoolMod();
@@ -55,6 +55,22 @@ void AttachMobHpTagMod();
 void AttachToolTipMod();
 void AttachIconIconMod();
 void AttachTempStatMod();
+
+// 从 BeiDou-ijl15 移植的模块（不含分辨率相关），按功能分组
+void AttachClientStartupMod(); // 启动时的内存补丁（IP / 端口 / 上限）
+void AttachMouseWheelMod();
+void AttachQuickSlotMod();     // 长快捷栏
+void AttachDateFormatMod();
+void AttachItemTypeMod();
+void AttachJumpCapMod();
+void AttachChatPosMod();
+void AttachPasswordMod();
+void AttachWorldMapMod();
+void AttachExtrasMod();
+void AttachHpMpAlertMod();
+void AttachImeFixMod();
+void AttachBuddyFixMod();
+void AttachNetServiceMod();
 
 inline void AttachClientHooks() {
     AttachClientBypass();
@@ -68,6 +84,21 @@ inline void AttachClientHooks() {
     AttachToolTipMod();
     AttachIconIconMod();
     AttachTempStatMod();
+    // 从 BeiDou-ijl15 移植（每个功能文件对应一个入口）
+    AttachClientStartupMod();
+    AttachMouseWheelMod();
+    AttachQuickSlotMod();
+    AttachDateFormatMod();
+    AttachItemTypeMod();
+    AttachJumpCapMod();
+    AttachChatPosMod();
+    AttachPasswordMod();
+    AttachWorldMapMod();
+    AttachExtrasMod();
+    AttachHpMpAlertMod();
+    AttachImeFixMod();
+    AttachBuddyFixMod();
+    AttachNetServiceMod();
 }
 
 
@@ -140,4 +171,19 @@ void PatchCall(T pAddress, U pDestination, size_t uSize = 5) {
 template <typename T>
 void PatchRetZero(T pAddress) {
     PatchStr(pAddress, "\x33\xC0\xC3");
+}
+
+// CodeCave：在 pAddress 处放置一个 jmp 跳转到 pCodeCave，
+// 然后把原指令剩余的字节用 nop 填满。
+// 参数顺序与 PatchCall / PatchJmp / PatchNop 一致：(目标地址, 跳转目标, 字节数)。
+template <typename T, typename U>
+void CodeCave(T pAddress, U pCodeCave, size_t uNopSize = 5) {
+    if (uNopSize < 5) {
+        ErrorMessage("Cannot CodeCave at 0x%08X with uNopSize = %d", TO_UINTPTR(pAddress), uNopSize);
+        return;
+    }
+    PatchJmp(pAddress, pCodeCave);
+    if (uNopSize > 5) {
+        PatchNop(pAddress + 5, pAddress + uNopSize);
+    }
 }

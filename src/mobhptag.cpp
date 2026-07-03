@@ -22,13 +22,13 @@ void CField::ShowMobHPTag_hook(unsigned int dwMobID, int nColor, int nBgColor, i
     }
     IWzCanvasPtr pCanvas = m_pLayerHPTag->canvas[0];
 
-    // Draw background
+    // 绘制背景
     if (!g_pCanvasHpBack) {
         g_pCanvasHpBack = get_unknown(get_rm()->GetObjectA(L"UI/UIWindowEx.img/MobHPRatioInfo/mob/0/backgrnd"));
     }
     pCanvas->Copy(0, 37, g_pCanvasHpBack);
 
-    // Draw hp percentage
+    // 绘制 HP 百分比
     if (!g_pPropHpNum) {
         g_pPropHpNum = get_rm()->GetObjectA(L"UI/UIWindowEx.img/MobHPRatioInfo/num").GetUnknown();
     }
@@ -50,5 +50,5 @@ unsigned int __fastcall CField__ShowMobHPTag__GetHeight_hook(IWzCanvas* pThis, v
 
 void AttachMobHpTagMod() {
     ATTACH_HOOK(CField::ShowMobHPTag, CField::ShowMobHPTag_hook);
-    PatchCall(0x00533AFD, &CField__ShowMobHPTag__GetHeight_hook); // patch m_pLayerHPTag height in CField::ShowMobHPTag
+    PatchCall(0x00533AFD, &CField__ShowMobHPTag__GetHeight_hook); // 修改 CField::ShowMobHPTag 中 m_pLayerHPTag 的高度
 }

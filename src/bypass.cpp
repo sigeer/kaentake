@@ -7,6 +7,7 @@
 #include "wvs/packet.h"
 #include "wvs/exception.h"
 #include "wvs/util.h"
+#include "wvs/config.h"
 #include "ztl/ztl.h"
 
 #include <windows.h>
@@ -15,56 +16,6 @@
 #pragma comment(lib, "winmm.lib")
 #pragma warning(disable : 4996)
 
-
-class ZSocketBase {
-private:
-    SOCKET _m_hSocket;
-
-public:
-    operator SOCKET() {
-        return _m_hSocket;
-    }
-    void CloseSocket() {
-        if (_m_hSocket != INVALID_SOCKET) {
-            closesocket(_m_hSocket);
-            _m_hSocket = INVALID_SOCKET;
-        }
-    }
-    void Socket(int type, int af, int protocol) {
-        _m_hSocket = socket(af, type, protocol);
-        if (_m_hSocket == INVALID_SOCKET) {
-            throw ZException(WSAGetLastError());
-        }
-    }
-};
-
-class ZInetAddr : public sockaddr_in {
-public:
-    operator const struct sockaddr *() const {
-        return (const struct sockaddr*)this;
-    }
-    operator const struct sockaddr_in *() const {
-        return (const struct sockaddr_in*)this;
-    }
-};
-
-ZRECYCLABLE(ZInetAddr, 0x00BF6A18)
-
-class CClientSocket : public TSingleton<CClientSocket, 0x00BE7914> {
-public:
-    struct CONNECTCONTEXT {
-        ZList<ZInetAddr> lAddr;
-        ZInetAddr* posList;
-        int bLogin;
-    };
-    static_assert(sizeof(CONNECTCONTEXT) == 0x1C);
-
-    MEMBER_AT(HWND, 0x4, m_hWnd)
-    MEMBER_AT(ZSocketBase, 0x8, m_sock)
-    MEMBER_AT(CONNECTCONTEXT, 0xC, m_ctxConnect)
-    MEMBER_AT(int, 0x38, m_tTimeout)
-    MEMBER_HOOK(void, 0x00494CA3, Connect, const CONNECTCONTEXT& ctx)
-};
 
 void CClientSocket::Connect_hook(const CONNECTCONTEXT& ctx) {
     DEBUG_MESSAGE("CClientSocket::Connect");

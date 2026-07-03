@@ -10,6 +10,8 @@ public:
         LAST_CONNECT_INFO = 0x1,
         CHARACTER_OPT = 0x2,
     };
+    MEMBER_AT(DWORD, 0x80, m_nHpAlert)
+    MEMBER_AT(DWORD, 0x84, m_nMpAlert)
     MEMBER_ARRAY_AT(int, 0xCC, m_nUIWnd_X, 34)
     MEMBER_ARRAY_AT(int, 0x154, m_nUIWnd_Y, 34)
 

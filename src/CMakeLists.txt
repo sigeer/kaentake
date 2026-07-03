@@ -13,6 +13,20 @@ add_library(injector SHARED
     itemicon.cpp
     tempstat.cpp
     stringpool.cpp
+    imefix.cpp
+    fixbuddy.cpp
+    clientstartup.cpp
+    mousewheel.cpp
+    quickslot.cpp
+    dateformat.cpp
+    itemtype.cpp
+    jumpcap.cpp
+    chatpos.cpp
+    password.cpp
+    worldmap.cpp
+    extras.cpp
+    hpmpalert.cpp
+    net.cpp
     debug.cpp
     hook.cpp
 )

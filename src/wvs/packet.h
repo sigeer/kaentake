@@ -1,6 +1,56 @@
 #pragma once
+#include "hook.h"
+#include "wvs/exception.h"
 #include "ztl/ztl.h"
 
+#include <winsock2.h>
+
+
+// ============================================================================
+// 封包 / 套接字类型 - 与网络收发相关的所有类集中在 packet.h。
+// 不再拆分独立的 wvs/clientsocket.h：ZSocketBase / ZInetAddr 是
+// CClientSocket 的字段类型，强行拆到不同头会形成循环 include。
+// ============================================================================
+
+
+// ----- 套接字封装 -----
+
+class ZSocketBase {
+private:
+    SOCKET _m_hSocket;
+
+public:
+    operator SOCKET() {
+        return _m_hSocket;
+    }
+    void CloseSocket() {
+        if (_m_hSocket != INVALID_SOCKET) {
+            closesocket(_m_hSocket);
+            _m_hSocket = INVALID_SOCKET;
+        }
+    }
+    void Socket(int type, int af, int protocol) {
+        _m_hSocket = socket(af, type, protocol);
+        if (_m_hSocket == INVALID_SOCKET) {
+            throw ZException(WSAGetLastError());
+        }
+    }
+};
+
+class ZInetAddr : public sockaddr_in {
+public:
+    operator const struct sockaddr *() const {
+        return (const struct sockaddr*)this;
+    }
+    operator const struct sockaddr_in *() const {
+        return (const struct sockaddr_in*)this;
+    }
+};
+
+ZRECYCLABLE(ZInetAddr, 0x00BF6A18)
+
+
+// ----- 封包数据 -----
 
 class CInPacket {
 protected:
@@ -73,3 +123,24 @@ protected:
 };
 
 static_assert(sizeof(COutPacket) == 0x10);
+
+
+// ----- 客户端套接字单例 -----
+
+class CClientSocket : public TSingleton<CClientSocket, 0x00BE7914> {
+public:
+    struct CONNECTCONTEXT {
+        ZList<ZInetAddr> lAddr;
+        ZInetAddr* posList;
+        int bLogin;
+    };
+    static_assert(sizeof(CONNECTCONTEXT) == 0x1C);
+
+    MEMBER_AT(HWND, 0x4, m_hWnd)
+    MEMBER_AT(ZSocketBase, 0x8, m_sock)
+    MEMBER_AT(CONNECTCONTEXT, 0xC, m_ctxConnect)
+    MEMBER_AT(int, 0x38, m_tTimeout)
+    MEMBER_HOOK(void, 0x00494CA3, Connect, const CONNECTCONTEXT& ctx)
+    MEMBER_HOOK(void, 0x0049637B, SendPacket, const COutPacket& packet)
+    MEMBER_HOOK(void, 0x004965F1, ManipulatePacket, CInPacket* pPacket)
+};
