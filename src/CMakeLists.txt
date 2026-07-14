@@ -13,9 +13,12 @@ add_library(injector SHARED
     itemicon.cpp
     tempstat.cpp
     stringpool.cpp
+    languagecn.cpp
     debug.cpp
     hook.cpp
 )
+
+target_compile_options(injector PRIVATE /utf-8)
 
 target_precompile_headers(injector PRIVATE pch.h)
 

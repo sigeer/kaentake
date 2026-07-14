@@ -1,12 +1,7 @@
 #include "pch.h"
+#include "stringpool.h"
 #include "hook.h"
 #include "ztl/ztl.h"
-
-#define REPLACE_STRING(INDEX, NEW_STRING) \
-    do { \
-        static char sEncoded[GetLength(NEW_STRING) + 2]; \
-        EncodeString(INDEX, NEW_STRING, sEncoded); \
-    } while (0)
 
 
 class StringPool {
@@ -23,14 +18,6 @@ public:
     };
     static_assert(sizeof(Key) == 0x4);
 };
-
-constexpr size_t GetLength(const char* s) {
-    size_t n = 0;
-    while (s[n]) {
-        ++n;
-    }
-    return n;
-}
 
 void EncodeString(int nIdx, const char* sSource, char* sDestination) {
     StringPool::Key keygen(StringPool::ms_aKey, 0x10, 0);
